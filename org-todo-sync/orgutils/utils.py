@@ -3,7 +3,9 @@ from orgparse import OrgEnv
 import os
 import yaml # pip install pyyaml
 
-
+############################################################
+#                   org files config section               #
+############################################################
 
 def make_config():
     '''make a config direectory if it doesn't exist already'''
@@ -48,64 +50,38 @@ def list_file_paths(folder_path):
                 file_paths.append(file_path)
     return file_paths  
 
+############################################################
+#               org file parsing functions                 #
+############################################################
 
-class org_todo:
-    ''' class for a org heading node with attributes '''
-  def __init__(self, todo, heading, scheduled, deadline, repeat, body, today):
-    self.todo = todo
-    self.heading = heading
-    self.scheduled = scheduled
-    self.deadline = deadline
-    self.repeat = repeat
-    self.body = body
-    self.today = today
-
-def org_process_node(heading):
-''' process org node/heading and return a class that contains the node/heading with org heading attributes '''    
-    if bool(heading.todo) == True:
-        todo=heading.todo
-    else:
-        todo=False
-
-    if bool(heading.heading) == True:
-            heading=heading.heading
-    else:
-        title=False
-
-    if bool(heading.scheduled) == True and bool(heading.scheduled.__dict__['_repeater']) == False and bool(heading.deadline.__dict__['_repeater']) == False:
-        scheduled=heading.scheduled
-    else:
-        scheduled=False
-
-    if bool(heading.deadline) == True:
-        deadline=heading.deadline
-    else:
-        deadline=False
-
-    if bool(heading.scheduled.__dict__['_repeater']) == True or bool(heading.deadline.__dict__['_repeater']) == True:
-        if bool(heading.scheduled.__dict__['_repeater']) == True:
-            repeat=heading.scheduled.__dict__['_repeater']
-        else:
-            repeat=heading.deadline.__dict__['_repeater']
-    else:
-        repeat=False
-
-    if bool(heading.body) == True:
-        body=heading.body
-    else:
-        body=False
+def repeat_parser(repate_pattern, org_date_time):
+    if repeat_pattern == [('+', 1, 'd')]:
+        repeater = {'pattern': {'type': 'daily', 'interval': 1, 'month': 0, 'dayOfMonth': 0, 'daysOfWeek': [], 'firstDayOfWeek': 'monday', 'index': 'first'},
+                    'range': {'type': 'noEnd', 'startDate': '2005-04-14', 'endDate': '0001-01-01', 'recurrenceTimeZone': 'UTC', 'numberOfOccurrences': 0}
+                    }
+        repeater["range"]["startDate"] = org_date_time.start.strftime("%Y-%m-%d")
+        repeater["pattern"]["interval"] = repeat_pattern[0][1]
         
-    if heading.scheduled.__dict__['_start']== datetime.date.today() or heading.deadline.__dict__['_start'] == datetime.date.today():
-        today=True
-    else:
-        today=False
- 
-    todo= org_todo(todo, heading, scheduled, deadline, repeat, body, today)
-    return todo 
+    elif repeat_pattern == [('+', 1, 'w')]:
+        repeater = {'pattern': {'type': 'weekly', 'interval': 1, 'month': 0, 'dayOfMonth': 0, 'daysOfWeek': [], 'firstDayOfWeek': 'monday', 'index': 'first'},
+                    'range': {'type': 'noEnd', 'startDate': '2005-04-14', 'endDate': '0001-01-01', 'recurrenceTimeZone': 'UTC', 'numberOfOccurrences': 0}
+                    }
+        repeater["range"]["startDate"] = org_date_time.start.strftime("%Y-%m-%d")
+        repeater["pattern"]["daysOfWeek"] = [strftime("%A").lower()]
+        repeater["pattern"]["interval"] = repeat_pattern[0][1]
+        
+    elif repeat_pattern == [('+', 1, 'm')]:
+        repeater = {'pattern': {'type': 'absoluteMonthly', 'interval': 1, 'month': 0, 'dayOfMonth': 0, 'daysOfWeek': [], 'firstDayOfWeek': 'monday', 'index': 'first'},
+                    'range': {'type': 'noEnd', 'startDate': '2005-04-14', 'endDate': '0001-01-01', 'recurrenceTimeZone': 'UTC', 'numberOfOccurrences': 0}
+                    }
+        repeater["range"]["startDate"] = org_date_time.start.strftime("%Y-%m-%d")
+        repeater["pattern"]["dayOfMonth"] = org_date_time.day
+        repeater["pattern"]["interval"] = repeat_pattern[0][1]
+
 
 
 def open_file(file_paths):
-    file_path='/home/rajesh/temp/orgparser/temp.org'
+#    file_path='/home/rajesh/temp/orgparser/temp.org'
     todo_keys = ['TODO', 'NEXT', 'WAITING', 'PROJ']
     done_keys = ['DONE', 'CANCELLED', 'DEFERRED']
     env = OrgEnv(todos=todo_keys, dones=done_keys, filename=file_path)
@@ -114,7 +90,7 @@ def open_file(file_paths):
 
 def is_task(heading):
     '''Return true if a org heading is a todo heading else return false'''
-    if heading.todo or heading.scheduled or heading.deadline or heading.get_timestamps():
+    if heading.todo or heading.has_date():
         return True
     else:
         return False
@@ -138,3 +114,69 @@ def is_project(heading):
         return True
     else:
         return False
+
+class org_todo:
+  def __init__(self, todo, heading, scheduled, deadline, repeat, body, today, remind, closed):
+    self.todo = todo
+    self.heading = heading
+    self.scheduled = scheduled
+    self.deadline = deadline
+    self.repeat = repeat
+    self.body = body
+    self.today = today
+    self.remind = remind
+    self.closed = closed
+
+def org_process_node(node):
+    
+    if bool(node.todo) == True:
+        todo=node.todo
+    else:
+        todo=False
+
+    if bool(node.heading) == True:
+            heading=node.heading
+    else:
+        title=False
+
+    if bool(node.scheduled) == True and bool(node.scheduled._repeater) == False and bool(node.deadline._repeater) == False:
+        scheduled={'dateTime': node.scheduled.start.strftime("%Y-%m-%dT%H:%M:%S"), 'timeZone': 'UTC'}
+        # scheduled=node.scheduled
+    else:
+        scheduled= False
+
+    if bool(node.deadline) == True:
+        deadline={'dateTime': node.deadline.start.strftime("%Y-%m-%dT%H:%M:%S"), 'timeZone': 'UTC'}
+        # deadline=node.deadline
+    else:
+        deadline= False
+
+    if bool(node.scheduled._repeater) == True or bool(node.deadline._repeater) == True:
+        if bool(node.scheduled._repeater) == True:
+            repeat=repeat_parser(node.scheduled._repeater, node.scheduled)
+        else:
+            repeat=repeat_parser(node.deadline._repeater, node.deadline)
+    else:
+        repeat=False
+
+    if bool(node.body) == True:
+        body=node.body
+    else:
+        body=False
+        
+    if node.scheduled.start == datetime.date.today() or node.deadline.start == datetime.date.today():
+        today=True
+    else:
+        today=False
+
+    if node.scheduled or node.deadline:
+        remind = True
+    else:
+        remind = False
+    if bool(node.closed) == True:
+        closed = {'dateTime': node.closed.start.strftime("%Y-%m-%dT%H:%M:%S"), 'timeZone': 'UTC'}
+    else:
+        closed=False
+    todo= org_todo(todo, heading, scheduled, deadline, repeat, body, today, remind, closed)
+    return todo 
+
