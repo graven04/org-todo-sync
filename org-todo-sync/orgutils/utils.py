@@ -2,6 +2,8 @@ from orgparse import load, loads
 from orgparse import OrgEnv
 import os
 import yaml # pip install pyyaml
+import datetime
+
 
 ############################################################
 #                   org files config section               #
@@ -12,6 +14,9 @@ def make_config():
     config_dir = "{}/.config/org-todo-sync".format(os.path.expanduser("~"))
     if not os.path.isdir(config_dir):
         os.makedirs(config_dir)
+    return config_dir
+
+config_dir = make_config()
 
 def make_folder_config_and_return_folder_path():
     ''' make files config path if it doesnt alrready exist and return instructions or org folder path'''
@@ -54,7 +59,7 @@ def list_file_paths(folder_path):
 #               org file parsing functions                 #
 ############################################################
 
-def repeat_parser(repate_pattern, org_date_time):
+def repeat_parser(repeat_pattern, org_date_time):
     if repeat_pattern == [('+', 1, 'd')]:
         repeater = {'pattern': {'type': 'daily', 'interval': 1, 'month': 0, 'dayOfMonth': 0, 'daysOfWeek': [], 'firstDayOfWeek': 'monday', 'index': 'first'},
                     'range': {'type': 'noEnd', 'startDate': '2005-04-14', 'endDate': '0001-01-01', 'recurrenceTimeZone': 'UTC', 'numberOfOccurrences': 0}
@@ -80,7 +85,7 @@ def repeat_parser(repate_pattern, org_date_time):
 
 
 
-def open_file(file_paths):
+def open_file(file_path):
 #    file_path='/home/rajesh/temp/orgparser/temp.org'
     todo_keys = ['TODO', 'NEXT', 'WAITING', 'PROJ']
     done_keys = ['DONE', 'CANCELLED', 'DEFERRED']
@@ -100,7 +105,7 @@ def has_children(heading):
     ''' Check is a org mode heading has children or not. Return True if
     it is has children, false otherwise'''
 
-    children=org_file[n].children
+    children=heading.children
 
     if children:
         return True
@@ -108,9 +113,9 @@ def has_children(heading):
         return False
 
 def is_project(heading):
-    ''' Return true if the org todo keyword is equal to PROJ, else return false'''
+    ''' Return true if the org todo keyword is equal to PROJ or has children, else return false'''
 
-    if heading.todo:
+    if heading.todo == "PROJ" or has_children(heading) == True:
         return True
     else:
         return False
