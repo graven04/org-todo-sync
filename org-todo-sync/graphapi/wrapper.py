@@ -1,3 +1,4 @@
+import time
 import datetime
 import graphapi.graphapi as api
 import json
@@ -14,18 +15,29 @@ def get_tasks(list_id):
     response = session.get(endpoint)
     response_value = parse_response(response)
     return response_value
+    
+def get_list(name):
+    session = api.get_oauth_session()
+    endpoint= f"https://graph.microsoft.com/v1.0/me/todo/lists?$filter=displayName eq '{name}'"
+    response = session.get(endpoint)
+    response_value = parse_response(response)
+    print(response_value)
+    dictionary = response_value[0]
+    list_id = dictionary['id']
+    return list_id
 
 def get_lists():
     session = api.get_oauth_session()
-    endpoint=f"{BASE_URL}"
+    endpoint= "https://graph.microsoft.com/v1.0/me/todo/lists"
     response = session.get(endpoint)
     response_value = parse_response(response)
     list_ids = [x['id'] for x in response_value if x.get('wellknownListName') == 'none']
     return list_ids
 
+
 def create_list(name):
     ''' create a ms todo list with the name of input and output the id of the list created'''
-    endpoint=f"{BASE_URL}"
+    endpoint=BASE_URL
     request_body = {  "displayName": "{list_name}".format(list_name=name)}
     session = api.get_oauth_session()
     response = session.post(endpoint, json=request_body)
@@ -43,8 +55,7 @@ def purge_lists(list_ids):
     ''' takes a list of todo list ids and deletes the list'''
     for i in list_ids:
         delete_list(i)
-    return True
-
+        
 def create_task(org_todo, list_id):
     endpoint = f"{BASE_URL}/{list_id}/tasks"
     request_body = {

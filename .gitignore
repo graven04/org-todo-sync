@@ -1,1 +1,3 @@
 .venv/
+org-todo-sync/testing/
+__pycache__/

@@ -8,13 +8,31 @@ import os
 # make folder config file and return a list of file paths
 folder_path = utils.make_folder_config_and_return_folder_path()
 output_file_paths = utils.list_file_paths(folder_path)
-excluded_files = ["someday.org", "archives.org"]
+excluded_files = ["someday.org", "archives.org", "review.org", "corevalue-goals.org", "corevalue-action-plan.org" ]
 file_paths = [file_path for  file_path in output_file_paths if all(excluded_file not in file_path for excluded_file in excluded_files)]
 print(file_paths)
 
 # purge existing microsoft todo tasks and lists
-lists = wrapper.get_lists()
-wrapper.purge_lists(lists)
+for files in file_paths:
+    list_name = os.path.basename(files)
+    print(list_name)
+    try:
+        list_id = wrapper.get_list(list_name)
+    except IndexError:
+        print(f"no list with name: {list_name}")
+    else:
+        wrapper.delete_list(list_id)
+
+# delete existing projects list 
+try:
+    project_id = wrapper.get_list("Projects")
+except IndexError:
+    print(f"no list with name: Projects")
+else:
+    wrapper.delete_list(project_id)
+
+
+# file_paths = ["/home/rajesh/projects/org-todo-sync/org-todo-sync/testing/temp.org"]
 
 # make a projects list
 project_list = wrapper.create_project_list()
@@ -38,9 +56,41 @@ for files in file_paths:
                     children_project_node = utils.org_process_node(x)
                     wrapper.create_project_task(head_project_node, children_project_node, list_id) 
             else:
-                task = utils.org_process_node(i) 
-                wrapper.create_task(task,list_id)
+                                
+                try:
+                    parent = i.get_parent()
+                    if parent.todo == "PROJ":
+                       continue 
+                except:
+                    task = utils.org_process_node(i) 
+                    wrapper.create_task(task,list_id)
+                # else:
+                #     continue
 
+                # try: 
+                #     parent = i.get_parent()
+                #     if parent.todo == "PROJ":
+                #         continue
+                # except:
+                #     print("Error!")
+                #     print(i)
+                # else:
+                #     task = utils.org_process_node(i) 
+                #     wrapper.create_task(task,list_id) 
+
+
+
+                
+                # try:
+                #     parent = i.get_parent(max_level=0)
+                #     if parent.todo == "PROJ":
+                        
+                # except:
+                #     task = utils.org_process_node(i) 
+                #     wrapper.create_task(task,list_id)
+                # else:
+                    
+                #     continue
 
 
 

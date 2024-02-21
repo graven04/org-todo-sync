@@ -115,7 +115,7 @@ def has_children(heading):
 def is_project(heading):
     ''' Return true if the org todo keyword is equal to PROJ or has children, else return false'''
 
-    if heading.todo == "PROJ" or has_children(heading) == True:
+    if heading.todo == "PROJ":
         return True
     else:
         return False
@@ -137,7 +137,7 @@ def org_process_node(node):
     if bool(node.todo) == True:
         todo=node.todo
     else:
-        todo=False
+        todo=""
 
     if bool(node.heading) == True:
             heading=node.heading
