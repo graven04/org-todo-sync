@@ -156,6 +156,13 @@ def org_process_node(node):
     else:
         deadline= False
 
+    if type((node.has_date())) is list and bool(node.deadline) == False and bool(node.scheduled) == False:
+        timestamp_date = node.has_date()[0]
+        scheduled={'dateTime': timestamp_date.start.strftime("%Y-%m-%dT%H:%M:%S"), 'timeZone': 'UTC'}
+
+        if timestamp_date.has_end() is True:
+            deadline={'dateTime': timestamp_date.end.strftime("%Y-%m-%dT%H:%M:%S"), 'timeZone': 'UTC'}
+
     if bool(node.scheduled._repeater) == True or bool(node.deadline._repeater) == True:
         if bool(node.scheduled._repeater) == True:
             repeat=repeat_parser(node.scheduled._repeater, node.scheduled)

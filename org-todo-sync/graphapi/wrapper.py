@@ -64,10 +64,9 @@ def create_task(org_todo, list_id):
 }
     if org_todo.scheduled:
         request_body["reminderDateTime"] = org_todo.scheduled
+        request_body["startDateTime"] = org_todo.scheduled
     if org_todo.deadline:
         request_body["dueDateTime"] = org_todo.deadline
-    elif org_todo.scheduled:
-        request_body["dueDateTime"] = org_todo.scheduled
     if org_todo.repeat:
         request_body["recurrence"] = org_todo.repeat
     if org_todo.body:
@@ -97,12 +96,11 @@ def create_project_task(project_head, project_children, list_id):
         "title": '{project} || {keyword} {heading}'.format(project = project, keyword=project_children.todo, heading=project_children.heading),
         "isReminderOn": project_children.remind,
 }
-    if project_children.scheduled:
-        request_body["reminderDateTime"] = project_children.scheduled
+    if org_todo.scheduled:
+        request_body["reminderDateTime"] = org_todo.scheduled
+        request_body["startDateTime"] = project_children.scheduled
     if project_children.deadline:
         request_body["dueDateTime"] = project_children.deadline
-    elif project_children.scheduled:
-        request_body["dueDateTime"] = project_children.scheduled
     if project_children.repeat:
         request_body["recurrence"] = project_children.repeat
     if project_children.body:
