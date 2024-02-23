@@ -32,7 +32,7 @@ else:
     wrapper.delete_list(project_id)
 
 
-# file_paths = ["/home/rajesh/projects/org-todo-sync/org-todo-sync/testing/temp.org"]
+
 
 # make a projects list
 project_list = wrapper.create_project_list()
@@ -43,7 +43,6 @@ for files in file_paths:
     root=utils.open_file(files)
     list_name = os.path.basename(files)
     list_id=wrapper.create_list(list_name)
-
     
     for i in root[1:]:
         if utils.is_task(i):
@@ -64,54 +63,3 @@ for files in file_paths:
                 except:
                     task = utils.org_process_node(i) 
                     wrapper.create_task(task,list_id)
-                # else:
-                #     continue
-
-                # try: 
-                #     parent = i.get_parent()
-                #     if parent.todo == "PROJ":
-                #         continue
-                # except:
-                #     print("Error!")
-                #     print(i)
-                # else:
-                #     task = utils.org_process_node(i) 
-                #     wrapper.create_task(task,list_id) 
-
-
-
-                
-                # try:
-                #     parent = i.get_parent(max_level=0)
-                #     if parent.todo == "PROJ":
-                        
-                # except:
-                #     task = utils.org_process_node(i) 
-                #     wrapper.create_task(task,list_id)
-                # else:
-                    
-                #     continue
-
-
-
-
-
-
-
-
-
-
-
-    # for i in root[1:]:
-    #     node = utils.org_process_node(i)
-    #     if utils.is_task(node):
-        
-    #         if utils.is_project(node) then:
-    #             wrapper.create_project(node,list_id) 
-    #         else:
-    #             wrapper.create_task(node,list_id)
-
-
-''' for projects, i was thinking:
-- if the task is part of a project then make a task in the form: " { project name } || { task name }"
-'''
