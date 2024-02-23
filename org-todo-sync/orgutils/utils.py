@@ -156,7 +156,7 @@ def org_process_node(node):
     else:
         deadline= False
 
-    if type((node.has_date())) is list and bool(node.deadline) == False and bool(node.scheduled) == False:
+    if type((node.has_date())) is list and bool(node.deadline) == False and bool(node.scheduled) == False and node.has_date():
         timestamp_date = node.has_date()[0]
         scheduled={'dateTime': timestamp_date.start.strftime("%Y-%m-%dT%H:%M:%S"), 'timeZone': 'UTC'}
 

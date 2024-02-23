@@ -3,8 +3,6 @@ import graphapi.wrapper as wrapper
 import orgutils.utils as utils
 import os
 
-
-
 # make folder config file and return a list of file paths
 folder_path = utils.make_folder_config_and_return_folder_path()
 output_file_paths = utils.list_file_paths(folder_path)
@@ -30,7 +28,6 @@ except IndexError:
     print(f"no list with name: Projects")
 else:
     wrapper.delete_list(project_id)
-
 
 
 
