@@ -1,0 +1,3 @@
+* Org-todo-sync
+
+This is a simple program that sync org file todo's into Microsoft todo app. It is still under heavy development.
