@@ -1,4 +1,3 @@
-import graphapi.graphapi as graphapi
 import graphapi.wrapper as wrapper
 import orgutils.utils as utils
 import os
@@ -6,8 +5,10 @@ import os
 # make folder config file and return a list of file paths
 folder_path = utils.make_folder_config_and_return_folder_path()
 output_file_paths = utils.list_file_paths(folder_path)
-excluded_files = ["someday.org", "archives.org", "review.org", "corevalue-goals.org", "corevalue-action-plan.org" ]
-file_paths = [file_path for  file_path in output_file_paths if all(excluded_file not in file_path for excluded_file in excluded_files)]
+excluded_files = ["someday.org", "archives.org", "review.org",
+                  "corevalue-goals.org", "corevalue-action-plan.org"]
+file_paths = [file_path for file_path in output_file_paths if all(
+    excluded_file not in file_path for excluded_file in excluded_files)]
 print(file_paths)
 
 # purge existing microsoft todo tasks and lists
@@ -21,14 +22,13 @@ for files in file_paths:
     else:
         wrapper.delete_list(list_id)
 
-# delete existing projects list 
+# delete existing projects list
 try:
     project_id = wrapper.get_list("Projects")
 except IndexError:
-    print(f"no list with name: Projects")
+    print(f"no list with name: {list_name}")
 else:
     wrapper.delete_list(project_id)
-
 
 
 # make a projects list
@@ -37,10 +37,10 @@ project_list = wrapper.create_project_list()
 # create new lists and tasks
 for files in file_paths:
     print(files)
-    root=utils.open_file(files)
+    root = utils.open_file(files)
     list_name = os.path.basename(files)
-    list_id=wrapper.create_list(list_name)
-    
+    list_id = wrapper.create_list(list_name)
+
     for i in root[1:]:
         if utils.is_task(i):
             print(i)
@@ -50,13 +50,14 @@ for files in file_paths:
                 wrapper.create_task(head_project_node, project_list)
                 for x in project_tasks:
                     children_project_node = utils.org_process_node(x)
-                    wrapper.create_project_task(head_project_node, children_project_node, list_id) 
+                    wrapper.create_project_task(
+                        head_project_node, children_project_node, list_id)
             else:
-                                
+
                 try:
                     parent = i.get_parent()
                     if parent.todo == "PROJ":
-                       continue 
+                        continue
                 except:
-                    task = utils.org_process_node(i) 
-                    wrapper.create_task(task,list_id)
+                    task = utils.org_process_node(i)
+                    wrapper.create_task(task, list_id)
