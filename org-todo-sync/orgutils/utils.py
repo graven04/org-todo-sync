@@ -16,20 +16,18 @@ def make_config():
         os.makedirs(config_dir)
     return config_dir
 
-config_dir = make_config()
 
-def make_folder_config_and_return_folder_path():
+def make_folder_config_and_return_folder_path(config_dir):
     ''' make files config path if it doesnt alrready exist and return instructions or org folder path'''
     files_config_path = os.path.join(config_dir, "files.yml")
-    
+
     # try to load files and list file paths
     if not os.path.isfile(files_config_path):
         files_config_content = {"folder_path": "replace me"}
-        
+
         with open(files_config_path, "w") as f:
             yaml.dump(files_config_content, f)
-        print("please edit files.yml in {} in format described here:\n{}".format(config_dir,
-                "https://github.com/graven04/org-todo-sync/blob/main/README.org"))
+        print("please edit files.yml in {} in format described here:\n{}".format(config_dir,"https://github.com/graven04/org-todo-sync/blob/main/README.org"))
         exit()
     else:
         # Load file paths
@@ -114,11 +112,14 @@ def has_children(heading):
 
 def is_project(heading):
     ''' Return true if the org todo keyword is equal to PROJ or has children, else return false'''
-
-    if heading.todo == "PROJ":
-        return True
-    else:
+    try:
+        if heading.todo == "PROJ" or heading.children == True:
+            return True
+        else:
+            return False
+    except:
         return False
+    
 
 class org_todo:
   def __init__(self, todo, heading, scheduled, deadline, repeat, body, today, remind, closed):

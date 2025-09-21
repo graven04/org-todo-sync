@@ -3,7 +3,8 @@ import orgutils.utils as utils
 import os
 
 # make folder config file and return a list of file paths
-folder_path = utils.make_folder_config_and_return_folder_path()
+config_dir = utils.make_config()
+folder_path = utils.make_folder_config_and_return_folder_path(config_dir)
 output_file_paths = utils.list_file_paths(folder_path)
 excluded_files = ["someday.org", "archives.org", "review.org",
                   "corevalue-goals.org", "corevalue-action-plan.org"]
@@ -53,11 +54,9 @@ for files in file_paths:
                     wrapper.create_project_task(
                         head_project_node, children_project_node, list_id)
             else:
-
-                try:
-                    parent = i.get_parent()
-                    if parent.todo == "PROJ":
-                        continue
-                except:
+                parent = i.get_parent()
+                if utils.is_project(parent):
+                    continue
+                else:
                     task = utils.org_process_node(i)
                     wrapper.create_task(task, list_id)
